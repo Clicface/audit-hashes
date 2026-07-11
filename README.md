@@ -52,28 +52,26 @@ RAPPORT="2025-11-11_18-32-29_verification-des-ports-ouverts.pdf"
 HASHES_DIR="$HOME/audit-hashes/hashes"
 ```
 
-Comparer ensuite l'empreinte recalculée localement avec l'empreinte publiée :
-
-```bash
-diff <(sha256sum "$RAPPORTS_DIR/$RAPPORT" | awk '{print $1}') \
-     <(awk '{print $1}' "$HASHES_DIR/$RAPPORT.sha256") \
-  && echo "OK : rapport intègre"
-```
-
-- Aucune sortie suivie de `OK : rapport intègre` → le rapport est identique à celui publié.
-- Un affichage des deux empreintes (et un code de retour `1`) → le rapport a été modifié.
-
-La comparaison ne porte que sur l'empreinte (premier champ), afin que le chemin complet du rapport local n'interfère pas avec le nom de fichier nu stocké dans le `.sha256`.
-
-Équivalent avec l'option de vérification intégrée à `sha256sum`, qui doit s'exécuter depuis le répertoire du rapport :
+Laisser ensuite `sha256sum` recalculer l'empreinte et la comparer à celle publiée. La commande s'exécute depuis le répertoire du rapport, d'où le sous-shell `cd` (qui n'affecte pas le shell courant) :
 
 ```bash
 (cd "$RAPPORTS_DIR" && sha256sum -c "$HASHES_DIR/$RAPPORT.sha256")
 ```
 
+Si le rapport est intègre :
+
 ```text
 2025-11-11_18-32-29_verification-des-ports-ouverts.pdf: Réussi
 ```
+
+S'il a été modifié depuis la publication de son haché :
+
+```text
+2025-11-11_18-32-29_verification-des-ports-ouverts.pdf: Échec
+sha256sum: Attention : 1 somme de contrôle ne correspond pas
+```
+
+Le code de retour est `0` en cas de succès et non nul en cas d'échec, ce qui permet d'intégrer la vérification à un script.
 
 ## Remarques
 - Ce dépôt ne contient **pas** les rapports eux-mêmes, uniquement leurs empreintes SHA-256.
