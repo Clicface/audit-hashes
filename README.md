@@ -1,5 +1,10 @@
 # Clicface – Audit Hashes
 
+[![Empreintes SHA-256](https://img.shields.io/badge/empreintes-SHA--256-blue)](hashes/)
+[![Dernier rapport publié](https://img.shields.io/github/last-commit/Clicface/audit-hashes?label=dernier%20rapport%20publi%C3%A9)](https://github.com/Clicface/audit-hashes/commits/main)
+[![Taille du dépôt](https://img.shields.io/github/repo-size/Clicface/audit-hashes?label=taille)](https://github.com/Clicface/audit-hashes)
+[![Contenu : empreintes uniquement](https://img.shields.io/badge/contenu-empreintes%20uniquement-lightgrey)](#remarques)
+
 Ce dépôt publie les **empreintes SHA-256** des rapports d'audit de sécurité générés par Clicface (vérification des ports ouverts, scans ZAP, etc.).
 
 Les fichiers de hachage sont stockés dans le répertoire :
@@ -34,6 +39,29 @@ cat hashes/2025-11-11_18-32-29_verification-des-ports-ouverts.pdf.sha256
 ```
 
 Si les empreintes sont identiques, le rapport n'a pas été modifié depuis la publication de son haché.
+
+## Vérification en une commande
+
+Les fichiers `.sha256` suivent exactement le format de sortie de `sha256sum`, la comparaison peut donc être automatisée. Depuis le répertoire contenant le rapport téléchargé :
+
+```bash
+diff <(sha256sum 2025-11-11_18-32-29_verification-des-ports-ouverts.pdf) \
+     hashes/2025-11-11_18-32-29_verification-des-ports-ouverts.pdf.sha256 \
+  && echo "OK : rapport intègre"
+```
+
+- Aucune sortie suivie de `OK : rapport intègre` → le rapport est identique à celui publié.
+- Un affichage des deux empreintes (et un code de retour `1`) → le rapport a été modifié.
+
+Équivalent avec l'option de vérification intégrée à `sha256sum` :
+
+```bash
+sha256sum -c hashes/2025-11-11_18-32-29_verification-des-ports-ouverts.pdf.sha256
+```
+
+```text
+2025-11-11_18-32-29_verification-des-ports-ouverts.pdf: Réussi
+```
 
 ## Remarques
 - Ce dépôt ne contient **pas** les rapports eux-mêmes, uniquement leurs empreintes SHA-256.
