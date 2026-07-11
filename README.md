@@ -42,21 +42,33 @@ Si les empreintes sont identiques, le rapport n'a pas été modifié depuis la p
 
 ## Vérification en une commande
 
-Les fichiers `.sha256` suivent exactement le format de sortie de `sha256sum`, la comparaison peut donc être automatisée. Depuis le répertoire contenant le rapport téléchargé :
+Les fichiers `.sha256` suivent exactement le format de sortie de `sha256sum`, la comparaison peut donc être automatisée.
+
+Définir d'abord trois variables : le répertoire contenant le rapport téléchargé, le nom du rapport, et le répertoire `hashes/` de ce dépôt cloné.
 
 ```bash
-diff <(sha256sum 2025-11-11_18-32-29_verification-des-ports-ouverts.pdf) \
-     hashes/2025-11-11_18-32-29_verification-des-ports-ouverts.pdf.sha256 \
+RAPPORTS_DIR="$HOME/Téléchargements"
+RAPPORT="2025-11-11_18-32-29_verification-des-ports-ouverts.pdf"
+HASHES_DIR="$HOME/audit-hashes/hashes"
+```
+
+Comparer ensuite l'empreinte recalculée localement avec l'empreinte publiée :
+
+```bash
+diff <(sha256sum "$RAPPORTS_DIR/$RAPPORT" | awk '{print $1}') \
+     <(awk '{print $1}' "$HASHES_DIR/$RAPPORT.sha256") \
   && echo "OK : rapport intègre"
 ```
 
 - Aucune sortie suivie de `OK : rapport intègre` → le rapport est identique à celui publié.
 - Un affichage des deux empreintes (et un code de retour `1`) → le rapport a été modifié.
 
-Équivalent avec l'option de vérification intégrée à `sha256sum` :
+La comparaison ne porte que sur l'empreinte (premier champ), afin que le chemin complet du rapport local n'interfère pas avec le nom de fichier nu stocké dans le `.sha256`.
+
+Équivalent avec l'option de vérification intégrée à `sha256sum`, qui doit s'exécuter depuis le répertoire du rapport :
 
 ```bash
-sha256sum -c hashes/2025-11-11_18-32-29_verification-des-ports-ouverts.pdf.sha256
+(cd "$RAPPORTS_DIR" && sha256sum -c "$HASHES_DIR/$RAPPORT.sha256")
 ```
 
 ```text
